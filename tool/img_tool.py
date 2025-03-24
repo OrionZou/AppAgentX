@@ -46,9 +46,9 @@ def extract_features(
 
         # Construct URL
         url = (
-            f"{config.Feature_URI}/extract_single?model_name={model_name}"
+            f"{config.Feature_URI}/extract_single"
             if is_single
-            else f"{config.Feature_URI}/extract_batch?model_name={model_name}"
+            else f"{config.Feature_URI}/extract_batch"
         )
 
         # Process input, convert stream to temporary file

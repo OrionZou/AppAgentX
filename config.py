@@ -75,3 +75,5 @@ Omni_URI = "http://127.0.0.1:8000"
 PINECONE_API_KEY = "pcsk_"
 # API key for authentication with Pinecone vector database service
 # Please enter your Pinecone API key here
+
+adb_path =  "~/Library/Android/sdk/platform-tools/adb"

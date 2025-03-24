@@ -12,13 +12,23 @@ import config  # Import configuration module
 
 # Define a function to execute ADB commands
 def execute_adb(adb_command):
-    result = subprocess.run(
-        adb_command,
-        shell=True,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        text=True,
-    )
+    if config.adb_path is None or config.adb_path=="":
+        result = subprocess.run(
+            adb_command,
+            shell=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+        )
+    else:
+        adb_command = adb_command.replace("adb", config.adb_path, 1)
+        result = subprocess.run(
+            adb_command,
+            shell=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+        )
     if result.returncode == 0:
         return result.stdout.strip()
     print(f"Command execution failed: {adb_command}")

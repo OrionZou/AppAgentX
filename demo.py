@@ -353,7 +353,10 @@ with gr.Blocks(
 
                 with gr.Column():
                     screenshot_gallery_user = gr.Gallery(
-                        label="Screenshots", height=700
+                        label="Screenshots", 
+                        object_fit="contain",
+                        # width=400,
+                        height=960,
                     )
 
             action.change(
@@ -383,7 +386,7 @@ with gr.Blocks(
                     gr.update(interactive=True),  # Enable Element Number
                     gr.update(interactive=True),  # Enable Text Input
                     gr.update(interactive=True),  # Enable Swipe Direction
-                    gr.update(interactive=True),  # Enable store_to_db_btn
+                    # gr.update(interactive=True),  # Enable store_to_db_btn
                     human_demo_output,  # Return output box
                     user_page_storage,  # Return page history
                 )
@@ -404,7 +407,7 @@ with gr.Blocks(
                     gr.update(interactive=False),  # Disable Element Number
                     gr.update(interactive=False),  # Disable Text Input
                     gr.update(interactive=False),  # Disable Swipe Direction
-                    gr.update(interactive=False),  # Disable store_to_db_btn
+                    # gr.update(interactive=False),  # Disable store_to_db_btn
                     "\n".join(user_log_storage),  # Return logs
                     user_page_storage,  # Return page history
                 )

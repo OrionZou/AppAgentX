@@ -72,9 +72,8 @@ class DeploymentState(TypedDict):
     device: str  # Device ID
 
     # Page information
-    current_page: (
-        Dict  # Current page information, including screenshot path and element data
-    )
+    current_page: Dict  # Current page information, including screenshot path and element data
+    
 
     # Execution related
     current_element: Optional[Dict]  # Current element being operated
