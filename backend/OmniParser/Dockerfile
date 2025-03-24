@@ -1,4 +1,4 @@
-FROM pytorch/pytorch:2.2.0-cuda12.1-cudnn8-runtime
+FROM docker-0.unsee.tech/pytorch/pytorch:2.2.0-cuda12.1-cudnn8-runtime
 
 WORKDIR /app
 
@@ -14,12 +14,8 @@ RUN apt-get update && apt-get install -y \
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY . .
-
-# 创建模型和权重文件夹
-RUN mkdir -p weights/icon_detect_v1_5 \
-    && mkdir -p weights/icon_caption_florence
 
 EXPOSE 8000
 
-CMD ["uvicorn", "omni:app", "--host", "0.0.0.0", "--port", "8000"] 
+# CMD ["uvicorn", "omni:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD uvicorn omni:app --host 0.0.0.0 --port 8000 > ./omni.log 2>&1

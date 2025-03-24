@@ -3,7 +3,7 @@ import tempfile
 import time
 from fastapi import FastAPI, File, UploadFile, Form
 from fastapi.responses import JSONResponse
-from utils import get_som_labeled_img, check_ocr_box, get_caption_model_processor, get_yolo_model
+from util.utils import get_som_labeled_img, check_ocr_box, get_caption_model_processor, get_yolo_model
 from PIL import Image
 import io
 import base64
@@ -18,9 +18,9 @@ app = FastAPI()
 device = 'cuda:0'
 
 # 初始化模型，只加载一次
-yolo_model_path = 'weights/icon_detect_v1_5/best.pt'
+yolo_model_path = './weights/icon_detect/model.pt'
 caption_model_name = 'florence2'
-caption_model_path = 'weights/icon_caption_florence'
+caption_model_path = './weights/icon_caption_florence'
 
 som_model = get_yolo_model(model_path=yolo_model_path)
 som_model.to(device)

@@ -55,10 +55,58 @@ docker-compose up --build
 docker-compose up -d --build
 ```
 
+
+## Download Model
+
+Download Omni Model:
+```bash
+mkdir -p ./backend/OmniParser/weights
+cd ./backend/OmniParser/weights
+for f in icon_detect/{train_args.yaml,model.pt,model.yaml} icon_caption/{config.json,generation_config.json,model.safetensors}; do huggingface-cli download microsoft/OmniParser-v2.0 "$f" --local-dir weights; done
+   mv weights/icon_caption weights/icon_caption_florence
+```
+
+
 ## Service Access
 
 - Image Feature Extraction Service: http://localhost:8001
 - Image Parsing Service: http://localhost:8000
+
+
+Configure **Nginx** to provide external API services using reverse proxy:
+
+1. Install **Nginx** 
+```bash
+sudo apt update && sudo apt install nginx -y
+```
+2. Configure **Nginx**
+```bash
+sudo vim /etc/nginx/sites-available/default
+```
+Refer to the following configuration: 
+```
+server {
+        listen 80 default_server;
+        listen [::]:80 default_server;
+
+        root /var/www/html;
+        index index.html index.htm index.nginx-debian.html;
+        server_name _;
+
+        location / {
+                try_files $uri $uri/ =404;
+        }
+        location /omni/ {
+                proxy_pass http://127.0.0.1:8000/;
+                client_max_body_size 50M;
+        }
+        location /image_embedding/ {
+                proxy_pass http://127.0.0.1:8001/;
+                client_max_body_size 50M;
+        }
+}
+```
+
 
 ## API Documentation
 

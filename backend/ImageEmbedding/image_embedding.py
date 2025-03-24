@@ -24,7 +24,7 @@ MODELS_CONFIG = {
 }
 
 class ModelConfig(BaseModel):
-    model_name: str
+    name: str
     image_size: Optional[int] = None
     mean: List[float] = Field(default=[0.485, 0.456, 0.406])
     std: List[float] = Field(default=[0.229, 0.224, 0.225])
@@ -36,23 +36,23 @@ class BatchResponse(BaseModel):
     features: List[List[float]]
     time_taken: float
     shape: List[int]
-    model_name: str
+    name: str
 
 class ExtractorConfig:
     def __init__(self, model_config: ModelConfig):
-        self.model_name = model_config.model_name
+        self.name = model_config.name
         self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
         
         # 创建模型
         try:
-            self.model = timm.create_model(model_config.model_name, pretrained=True, num_classes=0).to(self.device)
+            self.model = timm.create_model(model_config.name, pretrained=True, num_classes=0).to(self.device)
             self.model.eval()
         except Exception as e:
             raise HTTPException(status_code=400, detail=f"模型加载失败: {str(e)}")
         
         # 获取模型默认配置
         default_cfg = self.model.default_cfg
-        self.image_size = model_config.image_size or MODELS_CONFIG.get(model_config.model_name, {}).get('image_size', 224)
+        self.image_size = model_config.image_size or MODELS_CONFIG.get(model_config.name, {}).get('image_size', 224)
         
         # 创建预处理流程
         transform_list = []
@@ -83,7 +83,7 @@ class ExtractorConfig:
         self.transform = transforms.Compose(transform_list)
 
 # 全局变量
-current_extractor: Optional[ExtractorConfig] = None
+current_extractor: Optional[ExtractorConfig] = ExtractorConfig(ModelConfig(name="resnet50", image_size=MODELS_CONFIG["resnet50"]["image_size"]))
 
 @app.get("/available_models")
 async def get_available_models():
@@ -102,7 +102,7 @@ async def set_model(config: ModelConfig):
         current_extractor = ExtractorConfig(config)
         return {
             "status": "success",
-            "message": f"成功加载模型 {config.model_name}",
+            "message": f"成功加载模型 {config.name}",
             "image_size": current_extractor.image_size
         }
     except Exception as e:
@@ -139,7 +139,7 @@ async def extract_single_image(file: UploadFile = File(...)):
         features=features.cpu().numpy().tolist(),
         time_taken=time.time() - start_time,
         shape=list(features.shape),
-        model_name=current_extractor.model_name
+        name=current_extractor.name
     )
 
 @app.post("/extract_batch/", response_model=BatchResponse)
@@ -164,7 +164,7 @@ async def extract_batch_images(files: List[UploadFile] = File(...)):
         features=features.cpu().numpy().tolist(),
         time_taken=time.time() - start_time,
         shape=list(features.shape),
-        model_name=current_extractor.model_name
+        name=current_extractor.name
     )
 
 @app.get("/model_info")
@@ -174,7 +174,7 @@ async def get_model_info():
         raise HTTPException(status_code=400, detail="未设置模型")
     
     return {
-        "model_name": current_extractor.model_name,
+        "name": current_extractor.name,
         "image_size": current_extractor.image_size,
         "device": current_extractor.device,
         "model_config": current_extractor.model.default_cfg
@@ -205,6 +205,6 @@ async def run_benchmark():
     
     return results
 
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run("image_embedding:app", host="0.0.0.0", port=8001, reload=True)
+# if __name__ == "__main__":
+#     import uvicorn
+#     uvicorn.run("image_embedding:app", host="0.0.0.0", port=8001, reload=True)
